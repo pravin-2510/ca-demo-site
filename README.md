@@ -17,12 +17,15 @@ Open `index.html` in a browser. All page layout and interaction code is local; T
 
 - Replace the demo phone number, email, service-area details, and LocalBusiness schema in `index.html`.
 - Replace sample client names, testimonial copy, and editorial previews with approved, verifiable content.
-- Connect the consultation and newsletter forms in `script.js` to a booking, email, or form service. The current forms show an on-page demo confirmation only and do not send or store submissions.
+- Create a free Web3Forms access key and set `CONFIG.WEB3FORMS_ACCESS_KEY` near the top of `script.js`. The browser submits directly to Web3Forms; the key is necessarily visible in a static site, so use the provider's domain restrictions and spam controls where available.
+- Set `WHATSAPP_NUMBER` in `script.js` to the firm's international number using digits only. A successful enquiry opens WhatsApp; if the browser blocks the popup, the success toast includes a link.
+- Optionally set `CONFIG.GA4_MEASUREMENT_ID` in `script.js`. GA4 is not loaded unless an ID is supplied.
 - Update the social preview image and verify third-party image, font, and CDN availability.
 - Tailwind's CDN build is convenient for this no-build demo; for production performance and a consistent Lighthouse score, use a compiled/minified Tailwind stylesheet. Performance scores depend on the chosen host, network, and third-party assets and cannot be guaranteed by the source alone.
+- The newsletter form also submits through Web3Forms. Verify the provider's current free-tier quotas and data handling before collecting real enquiries.
 
 ## Files
 
-- `index.html` — semantic page content, SEO and social metadata, structured data, and CDN references.
-- `styles.css` — responsive visual system, layout, motion, and reduced-motion support.
-- `script.js` — mobile navigation, consultation modal, testimonial carousel, counters, and demo form feedback.
+- `index.html` — semantic page content, enquiry fields, SEO metadata, structured data, and CDN references.
+- `styles.css` — responsive visual system, form states, WhatsApp and consultation controls, and reduced-motion support.
+- `script.js` — Web3Forms AJAX submissions, validation, WhatsApp links, analytics hooks, navigation, carousel, counters, and AOS setup.

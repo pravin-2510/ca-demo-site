@@ -40,20 +40,68 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "AccountingService",
-    "name": "CA & Associates",
-    "description": "Chartered accounting, tax consulting, audit and business compliance services.",
-    "email": "hello@caandassociates.example",
-    "telephone": "+91-00000-00000",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "New Delhi",
-      "addressRegion": "Delhi",
-      "postalCode": "110001",
-      "addressCountry": "IN"
-    },
-    "areaServed": "India",
-    "priceRange": "$$"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "#organization",
+        "name": "CA & Associates",
+        "description": "Chartered accounting, tax consulting, audit and business compliance services.",
+        "email": "hello@caandassociates.example",
+        "contactPoint": { "@id": "#whatsapp-contact" }
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "#local-business",
+        "name": "CA & Associates",
+        "telephone": "+91-00000-00000",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "New Delhi",
+          "addressRegion": "Delhi",
+          "postalCode": "110001",
+          "addressCountry": "IN"
+        },
+        "areaServed": "India",
+        "priceRange": "$$",
+        "parentOrganization": { "@id": "#organization" }
+      },
+      {
+        "@type": "AccountingService",
+        "@id": "#accounting-service",
+        "name": "CA & Associates",
+        "provider": { "@id": "#local-business" },
+        "serviceType": ["Income Tax Filing", "GST Registration", "Company Registration", "Audit Services", "Bookkeeping", "Compliance Management"]
+      },
+      {
+        "@type": "Occupation",
+        "name": "Chartered Accountant",
+        "occupationalCategory": "Accounting",
+        "occupationLocation": { "@type": "Country", "name": "India" }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json" id="whatsapp-contact-schema">
+  {
+    "@context": "https://schema.org",
+    "@type": "ContactPoint",
+    "@id": "#whatsapp-contact",
+    "contactType": "WhatsApp consultation",
+    "availableLanguage": ["English", "Hindi"],
+    "url": "https://wa.me/"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "When should I speak with a Chartered Accountant?", "acceptedAnswer": { "@type": "Answer", "text": "Earlier is usually better: before setting up a business, making a significant financial decision or approaching a filing deadline. A short conversation can help you understand your options." } },
+      { "@type": "Question", "name": "Can you work with a business outside Delhi?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. We support clients across India through secure digital processes, scheduled calls and clear documentation." } },
+      { "@type": "Question", "name": "What should I bring to an initial consultation?", "acceptedAnswer": { "@type": "Answer", "text": "Bring a brief description of what you need help with and any relevant notices, filings or financial records you already have. We'll let you know if anything else would be useful." } },
+      { "@type": "Question", "name": "Do you support startups and newly registered businesses?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. We can help you think through business registration, tax and GST obligations, bookkeeping and the compliance calendar that comes with growth." } },
+      { "@type": "Question", "name": "How do your fees work?", "acceptedAnswer": { "@type": "Answer", "text": "Fees depend on the scope and complexity of the work. After understanding your needs, we'll outline the deliverables, timing and fee before you decide how to proceed." } }
+    ]
   }
   </script>
 </head>
@@ -108,12 +156,17 @@
       </div>
     </section>
 
+    <section class="consultation-prompt section-wrap" aria-label="Free tax consultation">
+      <div><h2>Need expert tax advice?</h2><p>Get a FREE 15-minute consultation from our CA experts.</p></div>
+      <a class="button button-primary js-consultation-button" href="#" target="_blank" rel="noopener">Book Consultation <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </section>
+
     <section class="trust-band" aria-label="Firm achievements">
       <div class="trust-inner">
         <div class="trust-item" data-aos="fade-up"><strong><span class="counter" data-target="500">0</span><span>+</span></strong><span>Happy clients</span></div>
         <div class="trust-item" data-aos="fade-up" data-aos-delay="80"><strong><span class="counter" data-target="10">0</span><span>+</span></strong><span>Years experience</span></div>
-        <div class="trust-item" data-aos="fade-up" data-aos-delay="160"><strong><span class="counter" data-target="98">0</span><span>%</span></strong><span>Client retention</span></div>
-        <div class="trust-note"><span class="trust-star">✳</span><p>Trusted advice.<br><b>Measurable peace of mind.</b></p></div>
+        <div class="trust-item" data-aos="fade-up" data-aos-delay="160"><strong><span class="counter" data-target="98">0</span><span>%</span></strong><span>Satisfaction rate</span></div>
+        <div class="trust-item trust-response" data-aos="fade-up" data-aos-delay="240"><strong>Fast</strong><span>Response</span></div>
       </div>
     </section>
 
@@ -130,6 +183,11 @@
         <article class="service-card" data-aos="fade-up" data-aos-delay="60"><span class="service-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></span><span class="service-index">05</span><h3>Accounting &amp; Bookkeeping</h3><p>Reliable records and useful financial insights, month after month.</p><a href="#contact" aria-label="Ask us about Accounting and Bookkeeping"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></article>
         <article class="service-card" data-aos="fade-up" data-aos-delay="120"><span class="service-icon"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span><span class="service-index">06</span><h3>Compliance Management</h3><p>Stay ahead of statutory responsibilities with a plan that works.</p><a href="#contact" aria-label="Ask us about Compliance Management"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></article>
       </div>
+    </section>
+
+    <section class="consultation-prompt section-wrap" aria-label="Free tax consultation">
+      <div><h2>Need expert tax advice?</h2><p>Get a FREE 15-minute consultation from our CA experts.</p></div>
+      <a class="button button-primary js-consultation-button" href="#" target="_blank" rel="noopener">Book Consultation <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
     </section>
 
     <section class="about-section" id="about" aria-labelledby="about-title">
@@ -201,6 +259,11 @@
       </div>
     </section>
 
+    <section class="consultation-prompt section-wrap" aria-label="Free tax consultation">
+      <div><h2>Need expert tax advice?</h2><p>Get a FREE 15-minute consultation from our CA experts.</p></div>
+      <a class="button button-primary js-consultation-button" href="#" target="_blank" rel="noopener">Book Consultation <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </section>
+
     <section class="cta-section section-wrap" aria-labelledby="cta-title">
       <div class="cta-panel" data-aos="zoom-in">
         <span class="cta-decoration cta-decoration-one" aria-hidden="true"></span><span class="cta-decoration cta-decoration-two" aria-hidden="true"></span>
@@ -215,7 +278,7 @@
       <div class="footer-brand-col"><a class="brand brand-footer" href="#top"><span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span><span class="brand-name">CA <span>&amp;</span> Associates<small>CHARTERED ACCOUNTANTS</small></span></a><p>Clear counsel for the decisions that move you forward.</p><div class="social-links"><a href="#contact" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a><a href="#contact" aria-label="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a><a href="#contact" aria-label="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a></div></div>
       <div class="footer-col"><h2>Explore</h2><a href="#about">About us</a><a href="#services">Services</a><a href="#faq">FAQs</a><button class="footer-link js-booking-open" type="button">Book a consultation</button></div>
       <div class="footer-col"><h2>Get in touch</h2><a href="tel:+910000000000"><i class="fa-solid fa-phone" aria-hidden="true"></i> +91 00000 00000</a><a href="mailto:hello@caandassociates.example"><i class="fa-regular fa-envelope" aria-hidden="true"></i> hello@caandassociates.example</a><p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> New Delhi, India</p></div>
-      <div class="footer-col footer-news"><h2>Thoughtful updates</h2><p>Occasional notes on tax, compliance and business.</p><form class="newsletter-form" id="newsletter-form"><label class="visually-hidden" for="newsletter-email">Email address</label><input id="newsletter-email" type="email" placeholder="Your email address" required><button type="submit" aria-label="Subscribe to updates"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></form><p class="form-message" id="newsletter-message" role="status"></p></div>
+      <div class="footer-col footer-news"><h2>Thoughtful updates</h2><p>Occasional notes on tax, compliance and business.</p><form class="newsletter-form" id="newsletter-form" novalidate><label class="visually-hidden" for="newsletter-email">Email address</label><input id="newsletter-email" name="email" type="email" placeholder="Your email address" aria-describedby="newsletter-message" required><button type="submit" aria-label="Subscribe to updates"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span class="form-spinner" aria-hidden="true"></span></button></form><p class="form-message" id="newsletter-message" role="status" aria-live="polite"></p></div>
     </div>
     <div class="footer-bottom section-wrap"><span>© <span id="current-year"></span> CA &amp; Associates. All rights reserved.</span><span>Professional guidance. Personal attention.</span><a href="#top">Back to top ↑</a></div>
   </footer>
@@ -223,16 +286,26 @@
   <dialog class="booking-dialog" aria-labelledby="booking-title">
     <form method="dialog" class="dialog-dismiss-form"><button class="dialog-close" aria-label="Close consultation form"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></form>
     <div class="dialog-content"><p class="eyebrow"><span></span> LET'S TALK</p><h2 id="booking-title">Start with a<br><em>conversation.</em></h2><p>Share a few details and we'll be in touch to arrange a time.</p>
-      <form class="booking-form" id="booking-form">
-        <label for="booking-name">Your name</label><input id="booking-name" name="name" autocomplete="name" required>
-        <label for="booking-email">Email address</label><input id="booking-email" name="email" type="email" autocomplete="email" required>
-        <label for="booking-service">What can we help with?</label><select id="booking-service" name="service" required><option value="" disabled selected>Select a service</option><option>Income Tax Filing</option><option>GST Registration</option><option>Business Registration</option><option>Audit Services</option><option>Accounting &amp; Bookkeeping</option><option>Compliance Management</option><option>Something else</option></select>
-        <button class="button button-primary" type="submit">Request a call back <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
-        <p class="form-message" id="booking-message" role="status"></p>
+      <form class="booking-form" id="booking-form" novalidate>
+        <label for="booking-name">Full Name</label><input id="booking-name" name="name" autocomplete="name" aria-describedby="booking-name-error" required><span class="field-error" id="booking-name-error"></span>
+        <label for="booking-phone">Mobile Number</label><input id="booking-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="booking-phone-error" required><span class="field-error" id="booking-phone-error"></span>
+        <label for="booking-email">Email Address</label><input id="booking-email" name="email" type="email" autocomplete="email" aria-describedby="booking-email-error" required><span class="field-error" id="booking-email-error"></span>
+        <label for="booking-service">Service Required</label><select id="booking-service" name="service"><option value="">Select a service</option><option>Income Tax Filing</option><option>GST Registration</option><option>Company Registration</option><option>Business Registration</option><option>Audit Services</option><option>Accounting &amp; Bookkeeping</option><option>Compliance Management</option><option>Something else</option></select>
+        <label for="booking-message-field">Message</label><textarea id="booking-message-field" name="message" rows="3"></textarea>
+        <button class="button button-primary" type="submit"><span class="button-label">Request a call back</span><span class="form-spinner" aria-hidden="true"></span><i class="fa-solid fa-arrow-right button-arrow" aria-hidden="true"></i></button>
+        <p class="form-message" id="booking-message" role="status" aria-live="polite"></p>
       </form>
-      <small class="demo-note">Demo form: connect this to your preferred booking or email service before launch.</small>
+      <small class="demo-note">Your details are sent securely through Web3Forms and are not stored on this website.</small>
     </div>
   </dialog>
+
+  <a class="whatsapp-float" id="whatsapp-float" href="#" target="_blank" rel="noopener" aria-label="Chat With CA Expert on WhatsApp">
+    <span class="whatsapp-tooltip" aria-hidden="true">Chat With CA Expert</span>
+    <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+  </a>
+  <a class="floating-consultation desktop-consultation js-consultation-button" href="#" target="_blank" rel="noopener">✅ Free Tax Consultation</a>
+  <a class="mobile-consultation-bar js-consultation-button" href="#" target="_blank" rel="noopener">✅ Free Tax Consultation <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
   <script src="script.js" defer></script>
