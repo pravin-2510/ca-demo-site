@@ -1,11 +1,13 @@
 (() => {
+  // Set these three values from your EmailJS account's API Keys, Email Services, and Email Templates pages.
+  const EMAILJS_PUBLIC_KEY = 'uGz4r-04ovFtyNZtt';
+  const EMAILJS_SERVICE_ID = 'service_daip78s';
+  const EMAILJS_TEMPLATE_ID = 'template_mvhflnn';
   const CONFIG = Object.freeze({
-    WEB3FORMS_ACCESS_KEY: '2bb12316-f565-48da-a5c9-1b7c5f37b1ed',
     GA4_MEASUREMENT_ID: ''
   });
   const WHATSAPP_NUMBER = "918983382986";
-  const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
-  const SUCCESS_TEXT = 'Thank you! Your enquiry has been submitted successfully. Our team will contact you shortly.';
+  const SUCCESS_TEXT = 'Thank you! Your enquiry has been received. Our CA team will contact you shortly.';
   const menuToggle = document.querySelector('.menu-toggle');
   const navMenu = document.querySelector('.nav-menu');
   const bookingDialog = document.querySelector('.booking-dialog');
@@ -94,28 +96,17 @@
     window.setTimeout(() => toast.remove(), 7000);
   }
 
-  function configuredAccessKey() {
-    const key = CONFIG.WEB3FORMS_ACCESS_KEY.trim();
-    return key && !key.includes('PASTE_YOUR_') ? key : '';
+  function isEmailJsConfigured() {
+    return [EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID]
+      .every((value) => value.trim() && !value.startsWith('YOUR_EMAILJS_'));
   }
 
-  function addSharedSubmissionFields(formData, subject) {
-    formData.append('access_key', configuredAccessKey());
-    formData.append('subject', subject);
-    formData.append('from_name', 'CA & Associates Website');
-    formData.append('page_url', window.location.href);
-    formData.append('submitted_at', new Date().toISOString());
-  }
-
-  async function sendToWeb3Forms(formData) {
-    const response = await fetch(WEB3FORMS_ENDPOINT, {
-      method: 'POST',
-      body: formData,
-      headers: { Accept: 'application/json' }
+  async function sendWithEmailJs(templateParams) {
+    if (!isEmailJsConfigured()) throw new Error('EmailJS is not configured.');
+    if (!window.emailjs) throw new Error('EmailJS SDK could not be loaded.');
+    return window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, {
+      publicKey: EMAILJS_PUBLIC_KEY
     });
-    const result = await response.json();
-    if (!response.ok || !result.success) throw new Error(result.message || 'The enquiry could not be submitted.');
-    return result;
   }
 
   function setFormLoading(form, isLoading, button) {
@@ -128,12 +119,20 @@
   const bookingFields = [
     { input: document.querySelector('#booking-name'), error: document.querySelector('#booking-name-error'), message: 'Please enter your full name.' },
     { input: document.querySelector('#booking-phone'), error: document.querySelector('#booking-phone-error'), message: 'Please enter a valid mobile number.' },
-    { input: document.querySelector('#booking-email'), error: document.querySelector('#booking-email-error'), message: 'Please enter a valid email address.' }
+    { input: document.querySelector('#booking-email'), error: document.querySelector('#booking-email-error'), message: 'Please enter a valid email address.' },
+    { input: document.querySelector('#booking-service'), error: document.querySelector('#booking-service-error'), message: 'Please select a service.' },
+    { input: document.querySelector('#booking-message-field'), error: document.querySelector('#booking-message-error'), message: 'Please enter a message.' }
   ];
 
   function validationMessage(field) {
     const value = field.input.value.trim();
-    if (!value) return field.input.id === 'booking-name' ? 'Please enter your full name.' : field.input.id === 'booking-phone' ? 'Please enter your mobile number.' : 'Please enter your email address.';
+    if (!value) {
+      if (field.input.id === 'booking-name') return 'Please enter your full name.';
+      if (field.input.id === 'booking-phone') return 'Please enter your mobile number.';
+      if (field.input.id === 'booking-email') return 'Please enter your email address.';
+      if (field.input.id === 'booking-service') return 'Please select a service.';
+      return 'Please enter a message.';
+    }
     if (field.input.id === 'booking-phone') {
       const digitCount = value.replace(/\D/g, '').length;
       if (digitCount < 7 || digitCount > 15) return field.message;
@@ -155,13 +154,15 @@
   }
 
   bookingFields.forEach((field) => {
-    field.input.addEventListener('input', () => {
+    const updateFieldValidation = () => {
       if (field.input.getAttribute('aria-invalid') === 'true' || field.input.value.trim()) {
         const message = validationMessage(field);
         field.error.textContent = message;
         field.input.setAttribute('aria-invalid', String(Boolean(message)));
       }
-    });
+    };
+    field.input.addEventListener('input', updateFieldValidation);
+    field.input.addEventListener('change', updateFieldValidation);
   });
 
   function applyServiceFromPath() {
@@ -253,9 +254,8 @@
     bookingMessage.textContent = '';
     bookingMessage.classList.remove('is-error');
 
-    const accessKey = configuredAccessKey();
-    if (!accessKey) {
-      showToast('Add your Web3Forms access key in the CONFIG section of script.js to enable submissions.', 'error');
+    if (!isEmailJsConfigured()) {
+      showToast('Add your EmailJS public key, service ID, and template ID near the top of script.js.', 'error');
       return;
     }
 
@@ -264,9 +264,18 @@
     setFormLoading(bookingForm, true, bookingSubmit);
 
     try {
-      const formData = new FormData(bookingForm);
-      addSharedSubmissionFields(formData, 'New CA Consultation Enquiry');
-      await sendToWeb3Forms(formData);
+      const values = new FormData(bookingForm);
+      const templateParams = {
+        from_name: String(values.get('name')).trim(),
+        phone: String(values.get('phone')).trim(),
+        from_email: String(values.get('email')).trim(),
+        reply_to: String(values.get('email')).trim(),
+        service: String(values.get('service')).trim(),
+        message: String(values.get('message')).trim(),
+        page_url: window.location.href,
+        submitted_at: new Date().toISOString()
+      };
+      await sendWithEmailJs(templateParams);
       trackFormSubmission('consultation');
       trackWhatsAppClick('form_success');
       const whatsappUrl = getWhatsAppUrl(makeWhatsAppEnquiry(bookingForm));
@@ -288,7 +297,7 @@
       bookingMessage.textContent = 'We could not submit your enquiry. Please try again or contact us on WhatsApp.';
       bookingMessage.classList.add('is-error');
       showToast('We could not submit your enquiry. Please try again or contact us on WhatsApp.', 'error', { href: defaultWhatsAppUrl, label: 'Contact us' });
-      console.error('Web3Forms consultation submission failed.', error);
+      console.error('EmailJS consultation submission failed.', error);
     } finally {
       setFormLoading(bookingForm, false, bookingSubmit);
     }
@@ -313,21 +322,27 @@
     }
     newsletterMessage.textContent = '';
     newsletterMessage.classList.remove('is-error');
-    const accessKey = configuredAccessKey();
-    if (!accessKey) {
-      newsletterMessage.textContent = 'Add your Web3Forms access key in script.js to enable subscriptions.';
+    if (!isEmailJsConfigured()) {
+      newsletterMessage.textContent = 'Add your EmailJS configuration in script.js to enable subscriptions.';
       newsletterMessage.classList.add('is-error');
-      showToast('Web3Forms is not configured yet.', 'error');
+      showToast('EmailJS is not configured yet.', 'error');
       return;
     }
 
     const submitButton = newsletterForm.querySelector('button[type="submit"]');
     setFormLoading(newsletterForm, true, submitButton);
     try {
-      const formData = new FormData(newsletterForm);
-      addSharedSubmissionFields(formData, 'CA & Associates Newsletter Signup');
-      formData.append('message', 'Please add this email address to the CA & Associates updates list.');
-      await sendToWeb3Forms(formData);
+      const email = newsletterEmail.value.trim();
+      await sendWithEmailJs({
+        from_name: 'Chintamani Consultancy Website',
+        from_email: email,
+        reply_to: email,
+        phone: 'Not provided',
+        service: 'Newsletter signup',
+        message: 'Please add this email address to the Chintamani Consultancy updates list.',
+        page_url: window.location.href,
+        submitted_at: new Date().toISOString()
+      });
       trackFormSubmission('newsletter');
       newsletterMessage.textContent = 'Thank you for subscribing.';
       showToast('Thank you for subscribing.');
@@ -336,7 +351,7 @@
       newsletterMessage.textContent = 'Subscription failed. Please try again shortly.';
       newsletterMessage.classList.add('is-error');
       showToast('Subscription failed. Please try again shortly.', 'error');
-      console.error('Web3Forms newsletter submission failed.', error);
+      console.error('EmailJS newsletter submission failed.', error);
     } finally {
       setFormLoading(newsletterForm, false, submitButton);
     }
